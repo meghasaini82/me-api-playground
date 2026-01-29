@@ -1,5 +1,4 @@
-npm update
-npm install rimraf@latest glob@latest tar@latest --save-dev
+
 {
   "name": "me-api-playground-backend",
   "version": "1.0.0",
