@@ -15,7 +15,7 @@ This project fulfills all requirements for the "Me-API Playground" backend asses
 
 - 
 RESUME  ......
-[📄 Click here to view my Resume](./.pdf)
+[📄 Click here to view my Resume](./megha-resume (1).pdf)
 ---
 
 ## 🚀 Quick Start
