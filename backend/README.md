@@ -13,6 +13,9 @@ This project fulfills all requirements for the "Me-API Playground" backend asses
 - ✅ Database integration (SQLite)
 - ✅ CORS configured for frontend
 
+- 
+RESUME  ......
+[📄 Click here to view my Resume](./.pdf)
 ---
 
 ## 🚀 Quick Start
