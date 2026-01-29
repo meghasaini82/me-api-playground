@@ -13,6 +13,16 @@ require('./config/db.js');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+// Is array mein apna Vercel wala link add karein (bina '/' ke end mein)
+const allowedOrigins = [
+    "http://localhost:5173",                     // Local testing ke liye
+    "https://me-api-playground-jet.vercel.app"       // 👈 Yahan apna Vercel link paste karein
+];
+
+app.use(cors({
+    origin: allowedOrigins,
+    credentials: true
+}));
 
 // ============================================
 // MIDDLEWARE
