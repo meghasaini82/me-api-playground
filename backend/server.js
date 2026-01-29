@@ -1,79 +1,138 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { connectDB } = require('./config/db');
+const bodyParser = require('body-parser');
+
+// Import routes
 const profileRoutes = require('./routes/profileRoutes');
+const projectsRoutes = require('./routes/project');
+
+
+// Import database (this will initialize tables)
+require('./config/db.js');
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
-// Connect to Database (SQLite)
-connectDB();
+// ============================================
+// MIDDLEWARE
+// ============================================
 
-// Middleware
-app.use(cors()); // Enable CORS for frontend
-app.use(express.json()); // Parse JSON bodies
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+// CORS - Allow frontend to connect
+app.use(cors());
 
-// Routes
-app.use('/api', profileRoutes);
+// Body Parser
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Request Logging
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.path}`);
+    next();
+});
+
+// ============================================
+// HEALTH CHECK (ASSIGNMENT REQUIREMENT!)
+// ============================================
+
+app.get('/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        message: 'Me-API Playground is running',
+        timestamp: new Date().toISOString()
+    });
+});
+
+// ============================================
+// API ROUTES
+// ============================================
 
 // Root endpoint
-app.get('/', (req, res) => {
+app.get('/api/v1', (req, res) => {
     res.json({
-        message: '🚀 Welcome to Me-API Playground!',
-        database: 'SQLite',
+        success: true,
+        message: 'Welcome to Me-API Playground API',
+        version: '1.0.0',
         endpoints: {
-            health: '/api/health',
+            profile: '/api/v1/profile',
+            projects: '/api/v1/projects',
+            health: '/health',
+            docs: '/api/v1/docs'
+        }
+    });
+});
+
+// Profile routes
+app.use('/api/v1/profile', profileRoutes);
+
+// Projects search route (Assignment requirement)
+app.use('/api/v1/projects', projectsRoutes);
+
+// API Documentation
+app.get('/api/v1/docs', (req, res) => {
+    res.json({
+        success: true,
+        apiDocumentation: {
             profile: {
-                get: 'GET /api/profile',
-                create: 'POST /api/profile',
-                update: 'PUT /api/profile'
-            },
-            projects: {
-                getAll: 'GET /api/projects',
-                getBySkill: 'GET /api/projects?skill=python',
-                add: 'POST /api/profile/project',
-                delete: 'DELETE /api/profile/project/:id'
-            },
-            experience: {
-                add: 'POST /api/profile/experience',
-                delete: 'DELETE /api/profile/experience/:id'
+                'GET /api/v1/profile': 'Get complete profile',
+                'POST /api/v1/profile': 'Create new profile',
+                'PUT /api/v1/profile': 'Update profile'
             },
             skills: {
-                add: 'POST /api/profile/skill',
-                topSkills: 'GET /api/skills/top?limit=5'
+                'POST /api/v1/profile/skill': 'Add skill',
+                'DELETE /api/v1/profile/skill/:id': 'Delete skill'
             },
-            education: {
-                add: 'POST /api/profile/education'
+            projects: {
+                'POST /api/v1/profile/project': 'Add project',
+                'DELETE /api/v1/profile/project/:id': 'Delete project',
+                'GET /api/v1/projects?skill=python': 'Search projects by skill (ASSIGNMENT REQUIREMENT)'
             },
-            search: {
-                universal: 'GET /api/search?q=keyword'
+            experience: {
+                'POST /api/v1/profile/experience': 'Add work experience',
+                'DELETE /api/v1/profile/experience/:id': 'Delete work experience'
+            },
+            resume: {
+                'POST /api/v1/profile/resume': 'Add/Update resume'
             }
         }
     });
 });
 
+// ============================================
+// ERROR HANDLING
+// ============================================
+
 // 404 Handler
 app.use((req, res) => {
     res.status(404).json({
         success: false,
-        message: 'Route not found'
+        message: 'Endpoint not found',
+        requestedUrl: req.originalUrl
     });
 });
 
-// Error Handler
+// Global Error Handler
 app.use((err, req, res, next) => {
-    console.error(err.stack);
+    console.error('Error:', err);
     res.status(500).json({
         success: false,
-        message: 'Something went wrong!',
-        error: err.message
+        message: 'Internal server error',
+        error: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
 });
 
-const PORT = process.env.PORT || 5000;
+// ============================================
+// START SERVER
+// ============================================
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📁 Database: SQLite (file-based, no installation needed!)`);
+    console.log('\n🚀 ========================================');
+    console.log(`   Me-API Playground Backend Running`);
+    console.log(`   PORT: ${PORT}`);
+    console.log(`   Health: http://localhost:${PORT}/health`);
+    console.log(`   API: http://localhost:${PORT}/api/v1`);
+    console.log(`   Docs: http://localhost:${PORT}/api/v1/docs`);
+    console.log('======================================== 🚀\n');
 });
+
+module.exports = app;
