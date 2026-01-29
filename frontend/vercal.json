@@ -1,0 +1,18 @@
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+```
+
+### Step 2: File location
+```
+your-repo/
+  └── frontend/
+      ├── package.json
+      ├── index.html
+      ├── vite.config.js
+      └── vercel.json  ← Yeh file add karein
